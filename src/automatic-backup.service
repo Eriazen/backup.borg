@@ -1,0 +1,10 @@
+#!/bin/bash
+
+[Unit]
+Description=backup home to backup partition
+
+[Service]
+Type=simple
+ExecStart=/etc/backups/run.sh
+Restart=on-failure
+RestartSec=10

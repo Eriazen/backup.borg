@@ -1,0 +1,11 @@
+#!/bin/bash
+
+[Unit]
+Description=periodically run automated-backup.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
