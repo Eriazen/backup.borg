@@ -86,7 +86,7 @@ echo "Pruned and compacted backup repository"
 # Just to be completely paranoid
 sync
 
-if [ -f /etc/backups/autoeject ]; then
+if [ -f "$BACKUP_PATH/autoeject" ]; then
         umount $MOUNTPOINT
 	echo "Partition $uuid unmounted successfully"
 fi
