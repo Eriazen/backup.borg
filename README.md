@@ -93,3 +93,9 @@ journalctl -fu automatic-backup.service
 ## Acknowledgements
 
 This setup is heavily based on the official Borg documentation for automated local backups, see [BorgBackup - Automated backups to local hard drive](https://borgbackup.readthedocs.io/en/stable/deployment/automated-local.html)
+
+## To-do
+
+- uninstall.sh
+- add backup options to config
+- add timer options
