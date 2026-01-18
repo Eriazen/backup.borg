@@ -1,10 +1,36 @@
 #!/bin/bash
 
 
-SCRIPT_PATH=`dirname $0`
-. "$SCRIPT_PATH/src/backup.conf"
-
 echo "::: Welcome to the backup.borg setup script"
+
+# Validate user input
+CONF_FILE="src/backup.conf"
+
+echo "::: Validating user configuration"
+if [ -f "$CONF_FILE" ]; then
+    source "$CONF_FILE"
+else
+    echo "!!! ERROR: Configuration file not found at $CONF_FILE"
+    exit 1
+fi
+
+if ! lsblk -no PTUUID | grep -q "$PTUUID"; then
+    echo "!!! ERROR: Partition Table UUID '$PTUUID' not found on any connected disk"
+    echo "!!! Please check 'src/backup.conf' and run 'lsblk --fs -o +PTUUID' to verify"
+    exit 1
+fi
+
+if ! blkid -U "$UUID" >/dev/null 2>&1; then
+    echo "!!! ERROR: Filesystem UUID '$UUID' not found"
+    echo "!!! Please check 'src/backup.conf' and run 'lsblk -o+uuid' to verify"
+    exit 1
+fi
+
+if [ ! -d "$MOUNTPOINT" ]; then
+  echo "!!! ERROR: Mountpoint directory not found at '$MOUNTPOINT'"
+  echo "!!! Please check 'src/backup.conf'"
+fi
+echo "::: Configuration validated successfully"
 
 # Check if sudo available
 if [[ $EUID -eq 0 ]];then
@@ -16,7 +42,8 @@ else
     if [[ $(dpkg-query -s sudo) ]];then
         export SUDO="sudo"
     else
-        echo "::: Please install sudo or run this as root."
+        echo "!!! ERROR: Root privilages not given"
+        echo "!!! Please install sudo or run this as root."
         exit 1
     fi
 fi
@@ -26,6 +53,10 @@ echo ""
 $SUDO mkdir -p $BACKUP_PATH
 echo "::: Created backup.borg directory at $BACKUP_PATH"
 echo ""
+
+# Make the config file root only
+$SUDO chown root:root "$BACKUP_PATH/backup.conf"
+$SUDO chmod 600 "$BACKUP_PATH/backup.conf"
 
 # Copy files from src to BACKUP_PATH
 $SUDO cp $SCRIPT_PATH/src/* "$BACKUP_PATH/."
